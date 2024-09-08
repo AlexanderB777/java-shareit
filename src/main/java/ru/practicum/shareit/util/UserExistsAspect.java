@@ -18,7 +18,7 @@ public class UserExistsAspect {
             "|| execution(* ru.practicum.shareit.item.ItemController.update(..)) && args(userId, ..)")
     public void checkUserExists(long userId) {
         log.info("Checking if user {} exists", userId);
-        if(repository.get(userId).isEmpty()) {
+        if (repository.get(userId).isEmpty()) {
             log.info("User {} does not exist", userId);
             throw new NotFoundException("User " + userId + " does not exist");
         }
