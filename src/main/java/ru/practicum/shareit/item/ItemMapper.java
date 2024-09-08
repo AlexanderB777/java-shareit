@@ -9,6 +9,6 @@ public interface ItemMapper {
     Item toEntity(ItemDto itemDto);
 
     ItemDto toDto(Item item);
-    List<ItemDto> toDtoList(List<Item> items);
 
+    List<ItemDto> toDtoList(List<Item> items);
 }
