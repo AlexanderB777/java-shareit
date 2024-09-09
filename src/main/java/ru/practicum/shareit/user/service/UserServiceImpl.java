@@ -1,8 +1,13 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.util.NotFoundException;
+import ru.practicum.shareit.util.ValidationException;
 
 @Service
 @RequiredArgsConstructor
@@ -12,12 +17,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(UserDto userDto) {
+        checkDuplicateEmail(userDto.getEmail());
         return mapper.toDto(repository.save(mapper.toEntity(userDto)));
     }
 
     @Override
     public UserDto update(UserDto userDto, long userId) {
-        User user = repository.get(userId).orElseThrow(() -> new NotFoundException("Пользователя не существует"));
+        checkDuplicateEmail(userDto.getEmail());
+        User user = repository
+                .get(userId).orElseThrow(() -> new NotFoundException("Пользователя не существует"));
         if (userDto.getName() != null) user.setName(userDto.getName());
         if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
         return mapper.toDto(user);
@@ -34,8 +42,9 @@ public class UserServiceImpl implements UserService {
         repository.delete(id);
     }
 
-    @Override
-    public boolean existEmail(String email) {
-        return repository.existsEmail(email);
+    private void checkDuplicateEmail(String email) {
+        if (repository.existsEmail(email)) {
+            throw new ValidationException("User with email already exists");
+        }
     }
 }

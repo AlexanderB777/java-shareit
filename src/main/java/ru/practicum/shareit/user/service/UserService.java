@@ -1,4 +1,6 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
+
+import ru.practicum.shareit.user.dto.UserDto;
 
 public interface UserService {
 
@@ -9,6 +11,4 @@ public interface UserService {
     UserDto getById(long id);
 
     void delete(long id);
-
-    boolean existEmail(String email);
 }

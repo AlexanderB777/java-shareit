@@ -8,10 +8,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
-/**
- * TODO Sprint add-item-requests.
- */
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ItemRequestDto {
