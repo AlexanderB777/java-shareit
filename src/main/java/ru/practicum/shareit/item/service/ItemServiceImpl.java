@@ -2,9 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.util.NotFoundException;
 import ru.practicum.shareit.util.OutOfPermissionException;
@@ -22,7 +22,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(ItemDto itemDto, long userId) {
         Item newItem = mapper.toEntity(itemDto);
         newItem.setOwnerId(userId);
-        return mapper.toDto(repository.save(newItem));
+        Item persisted = repository.save(newItem);
+        return mapper.toDto(persisted);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllFromUser(long userId) {
-        return mapper.toDtoList(repository.findAllByUserId(userId));
+        return mapper.toDtoList(repository.findAllByOwnerId(userId));
     }
 
     @Override
@@ -60,6 +61,6 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return mapper.toDtoList(repository.search(text));
+        return mapper.toDtoList(repository.searchByQuery(text));
     }
 }

@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto, long userId) {
         checkDuplicateEmail(userDto.getEmail());
         User user = repository
-                .get(userId).orElseThrow(() -> new NotFoundException("Пользователя не существует"));
+                .findById(userId).orElseThrow(() -> new NotFoundException("Пользователя не существует"));
         if (userDto.getName() != null) user.setName(userDto.getName());
         if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
         return mapper.toDto(user);
@@ -34,16 +34,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long id) {
         return mapper.toDto(repository
-                .get(id).orElseThrow(() -> new NotFoundException("Пользователя не существует")));
+                .findById(id).orElseThrow(() -> new NotFoundException("Пользователя не существует")));
     }
 
     @Override
     public void delete(long id) {
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     private void checkDuplicateEmail(String email) {
-        if (repository.existsEmail(email)) {
+        if (repository.existsByEmail(email)) {
             throw new ValidationException("User with email already exists");
         }
     }

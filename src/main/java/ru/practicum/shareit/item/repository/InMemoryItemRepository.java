@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class InMemoryItemRepository implements ItemRepository {
+public class InMemoryItemRepository implements ItemRepositoryInMemory {
     private final List<Item> items = new ArrayList<>();
 
 
