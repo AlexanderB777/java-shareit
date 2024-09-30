@@ -14,7 +14,9 @@ public class ControllersLoggingAspect {
     @Pointcut("within(ru.practicum.shareit.user.UserController) || " +
               "within(ru.practicum.shareit.item.ItemController) || " +
               "within(ru.practicum.shareit.booking.BookingController)")
-    public void controllersLogging() {}
+    public void controllersLogging() {
+
+    }
 
     @Before("controllersLogging()")
     public void logBeforeItemControllerMethod(JoinPoint joinPoint) {
