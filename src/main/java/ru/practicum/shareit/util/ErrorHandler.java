@@ -6,6 +6,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.util.exception.ItemNotAvailableException;
+import ru.practicum.shareit.util.exception.NotFoundException;
+import ru.practicum.shareit.util.exception.OutOfPermissionException;
+import ru.practicum.shareit.util.exception.ValidationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +36,12 @@ public class ErrorHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         }
         return new ErrorResponse("Validation failed", errors.toString());
+    }
+
+    @ExceptionHandler(ItemNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemNotAvailableException(final ItemNotAvailableException e) {
+        return new ErrorResponse("ItemNotAvailableException", e.getMessage());
     }
 
     @ExceptionHandler(OutOfPermissionException.class)

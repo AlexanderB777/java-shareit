@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.user.model.User;
 
 @Entity
 @Table(name = "items")
@@ -15,6 +16,7 @@ public class Item {
     private String name;
     private String description;
     private Boolean available;
-    @Column(name = "owner_id")
-    private Long ownerId;
+    @JoinColumn(name = "owner_id")
+    @ManyToOne
+    private User owner;
 }
