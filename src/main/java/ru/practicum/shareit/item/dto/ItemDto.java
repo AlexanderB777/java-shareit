@@ -19,37 +19,4 @@ public class ItemDto {
     private BookingDtoResponse lastBooking;
     private BookingDtoResponse nextBooking;
     private List<String> comments;
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ItemDto(");
-        if (id != null) {
-            builder.append("id=").append(id).append(", ");
-        }
-        if (name != null) {
-            builder.append("name=").append(name).append(", ");
-        }
-        if (description != null) {
-            builder.append("descrL=").append(description.length()).append(", ");
-        }
-        if (available != null) {
-            builder.append("available=").append(available).append(", ");
-        }
-        if (lastBooking != null) {
-            builder.append("lastBooking=").append(lastBooking).append(", ");
-        }
-        if (nextBooking != null) {
-            builder.append("nextBooking=").append(nextBooking).append(", ");
-        }
-        if (comments != null) {
-            builder.append("comments=").append(comments).append(", ");
-        }
-        int toDelete = builder.lastIndexOf(", ");
-        if (toDelete != -1) {
-            builder.delete(toDelete, builder.length());
-        }
-        builder.append(")");
-        return builder.toString();
-    }
 }

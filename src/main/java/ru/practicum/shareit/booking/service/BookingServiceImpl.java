@@ -55,11 +55,7 @@ public class BookingServiceImpl implements BookingService {
         if (!Objects.equals(booking.getItem().getOwner().getId(), bookerId)) {
             throw new OutOfPermissionException("User not allowed to approve booking");
         }
-        if (approved) {
-            booking.setStatus(BookingStatus.APPROVED);
-        } else {
-            booking.setStatus(BookingStatus.REJECTED);
-        }
+        booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         return responseMapper.map(repository.save(booking));
     }
 
@@ -74,35 +70,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDtoResponse> getBookingsByUserId(long bookerId, BookingState state) {
-        switch (state) {
-            case ALL -> {
-                return responseMapper.map(repository.findBookingsByBooker_IdOrderByStartDesc(bookerId));
-            }
-            case CURRENT -> {
-                return responseMapper.map(repository.findActiveBookingsByBookerId(bookerId));
-            }
-            case PAST -> {
-                return responseMapper.map(repository.findPastBookingsByBookerId(bookerId));
-            }
-            case FUTURE -> {
-                return responseMapper.map(repository.findFutureBookingsByBookerId(bookerId));
-            }
-            case WAITING -> {
-                return responseMapper
-                        .map(repository
-                                .findBookingsByBooker_IdAndStatusOrderByStartDesc(
-                                        bookerId,
-                                        BookingStatus.WAITING));
-            }
-            case REJECTED -> {
-                return responseMapper
-                        .map(repository
-                                .findBookingsByBooker_IdAndStatusOrderByStartDesc(
-                                        bookerId,
-                                        BookingStatus.REJECTED));
-            }
-        }
-        return null;
+        return switch (state) {
+            case ALL -> responseMapper.map(repository.findBookingsByBooker_IdOrderByStartDesc(bookerId));
+
+            case CURRENT -> responseMapper.map(repository.findActiveBookingsByBookerId(bookerId));
+
+            case PAST -> responseMapper.map(repository.findPastBookingsByBookerId(bookerId));
+
+            case FUTURE -> responseMapper.map(repository.findFutureBookingsByBookerId(bookerId));
+
+            case WAITING -> responseMapper
+                    .map(repository
+                            .findBookingsByBooker_IdAndStatusOrderByStartDesc(
+                                    bookerId,
+                                    BookingStatus.WAITING));
+
+            case REJECTED -> responseMapper
+                    .map(repository
+                            .findBookingsByBooker_IdAndStatusOrderByStartDesc(
+                                    bookerId,
+                                    BookingStatus.REJECTED));
+
+        };
     }
 
     private Booking getFromRepository(Long bookingId) {

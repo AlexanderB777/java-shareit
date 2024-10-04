@@ -248,18 +248,6 @@
 						</execution>
 					</executions>
 				</plugin>
-<!--				<plugin>-->
-<!--					<groupId>org.apache.maven.plugins</groupId>-->
-<!--					<artifactId>maven-jar-plugin</artifactId>-->
-<!--					<version>3.2.0</version>-->
-<!--					<configuration>-->
-<!--						<archive>-->
-<!--							<manifest>-->
-<!--								<mainClass>ru.practicum.shareit.ShareItApp</mainClass>-->
-<!--							</manifest>-->
-<!--						</archive>-->
-<!--					</configuration>-->
-<!--				</plugin>-->
 			</plugins>
 		</pluginManagement>
 	</build>
