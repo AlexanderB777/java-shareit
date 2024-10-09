@@ -1,0 +1,11 @@
+package ru.practicum.request;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@Slf4j
+@RequestMapping(path = "/requests")
+public class ItemRequestController {
+}
