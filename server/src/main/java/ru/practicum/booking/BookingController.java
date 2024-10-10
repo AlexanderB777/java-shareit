@@ -1,8 +1,5 @@
 package ru.practicum.booking;
 
-//import jakarta.validation.Valid;
-//import jakarta.validation.constraints.NotNull;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.dto.BookingDto;
