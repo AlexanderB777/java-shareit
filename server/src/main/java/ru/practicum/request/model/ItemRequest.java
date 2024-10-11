@@ -3,9 +3,11 @@ package ru.practicum.request.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.item.model.Item;
 import ru.practicum.user.model.User;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "requests")
@@ -19,5 +21,7 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     @ManyToOne
     private User requestor;
-    private LocalDate requestDate;
+    private LocalDate created;
+    @OneToMany(mappedBy = "itemRequest")
+    private List<Item> items;
 }

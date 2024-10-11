@@ -14,6 +14,7 @@ public interface ItemMapper {
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "requestId", source = "itemRequest.id")
     ItemDto toDto(Item item);
 
     List<ItemDto> toDtoList(List<Item> items);

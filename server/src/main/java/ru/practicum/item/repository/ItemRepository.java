@@ -3,6 +3,7 @@ package ru.practicum.item.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.item.model.Item;
+import ru.practicum.request.model.ItemRequest;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                AND i.available = TRUE
             """)
     List<Item> searchByQuery(String text);
+
+    List<Item> findItemsByItemRequest(ItemRequest itemRequest);
 }

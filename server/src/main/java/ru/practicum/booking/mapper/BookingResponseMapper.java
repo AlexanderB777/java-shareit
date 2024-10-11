@@ -1,8 +1,8 @@
 package ru.practicum.booking.mapper;
 
 import org.mapstruct.Mapper;
-import ru.practicum.booking.model.Booking;
 import ru.practicum.booking.dto.BookingDtoResponse;
+import ru.practicum.booking.model.Booking;
 import ru.practicum.item.mapper.ItemMapper;
 import ru.practicum.user.mapper.UserMapper;
 

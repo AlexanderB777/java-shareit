@@ -11,6 +11,7 @@ import ru.practicum.item.model.Comment;
 import ru.practicum.item.model.Item;
 import ru.practicum.item.repository.CommentRepository;
 import ru.practicum.item.repository.ItemRepository;
+import ru.practicum.request.repository.ItemRequestRepository;
 import ru.practicum.user.repository.UserRepository;
 import ru.practicum.util.exception.ItemNotAvailableException;
 import ru.practicum.util.exception.NotFoundException;
@@ -26,17 +27,23 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper mapper;
     private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(ItemDto itemDto, long userId) {
         Item newItem = mapper.toEntity(itemDto);
+        Long itemRequestId = itemDto.getRequestId();
+        if (itemRequestId != null) {
+            newItem.setItemRequest(itemRequestRepository
+                    .findById(itemRequestId)
+                    .orElseThrow(() -> new NotFoundException("ItemRequest not found")));
+        }
         newItem.setOwner(userRepository
                 .findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
-        Item persisted = repository.save(newItem);
-        return mapper.toDto(persisted);
+        return mapper.toDto(repository.save(newItem));
     }
 
     @Override

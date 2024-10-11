@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 public class ControllersLoggingAspect {
 
     @Pointcut("within(ru.practicum.user.UserController) || " +
-              "within(ru.practicum.item.ItemController) || " +
-              "within(ru.practicum.booking.BookingController)")
+            "within(ru.practicum.item.ItemController) || " +
+            "within(ru.practicum.booking.BookingController) || " +
+            "within(ru.practicum.request.ItemRequestController)")
     public void controllersLogging() {
     }
 

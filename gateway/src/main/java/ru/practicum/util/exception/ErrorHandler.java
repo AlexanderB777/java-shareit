@@ -27,7 +27,7 @@ public class ErrorHandler {
         try (InputStream bodyStream = response.body().asInputStream()) {
             return objectMapper.readValue(bodyStream, ErrorResponse.class);
         } catch (IOException ex) {
-            return new ErrorResponse("Unknown error", "Failed to parse response");
+            return new ErrorResponse("Unknown error", response.toString());
         }
     }
 }

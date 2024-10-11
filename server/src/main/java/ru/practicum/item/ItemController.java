@@ -1,7 +1,5 @@
 package ru.practicum.item;
 
-//import jakarta.validation.Valid;
-//import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.dto.CommentDto;
