@@ -57,14 +57,19 @@ public class ControllersLoggingAspect {
                 .append(methodName)
                 .append("(");
 
-        for (int i = 0; i < parameterNames.length - 1; i++) {
-            msg.append(parameterNames[i])
+        if (parameterNames.length > 0) {
+            for (int i = 0; i < parameterNames.length - 1; i++) {
+                msg.append(parameterNames[i])
+                        .append(": ")
+                        .append(args[i] != null ? args[i] : "null")
+                        .append(", ");
+            }
+            msg.append(parameterNames[parameterNames.length - 1])
                     .append(": ")
-                    .append(args[i])
-                    .append(", ");
+                    .append(args[parameterNames.length - 1] != null ? args[parameterNames.length - 1] : "null");
         }
-        int lastIndex = parameterNames.length - 1;
-        msg.append(parameterNames[lastIndex]).append(": ").append(args[lastIndex]).append(")");
+
+        msg.append(")");
         return msg.toString();
     }
 }
