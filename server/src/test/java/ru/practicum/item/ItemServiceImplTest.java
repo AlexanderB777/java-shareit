@@ -1,206 +1,355 @@
 package ru.practicum.item;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.practicum.booking.repository.BookingRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
-import ru.practicum.item.mapper.CommentMapper;
-import ru.practicum.item.mapper.ItemMapper;
-import ru.practicum.item.model.Comment;
 import ru.practicum.item.model.Item;
-import ru.practicum.item.repository.CommentRepository;
 import ru.practicum.item.repository.ItemRepository;
-import ru.practicum.item.service.ItemServiceImpl;
-import ru.practicum.request.model.ItemRequest;
-import ru.practicum.request.repository.ItemRequestRepository;
-import ru.practicum.user.model.User;
-import ru.practicum.user.repository.UserRepository;
+import ru.practicum.item.service.ItemService;
 import ru.practicum.util.exception.ItemNotAvailableException;
 import ru.practicum.util.exception.NotFoundException;
 import ru.practicum.util.exception.OutOfPermissionException;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 public class ItemServiceImplTest {
+    @Autowired
+    private ItemService itemService;
 
-    private ItemServiceImpl itemService;
+    @SpyBean
     private ItemRepository itemRepository;
-    private UserRepository userRepository;
-    private CommentRepository commentRepository;
-    private BookingRepository bookingRepository;
-    private ItemRequestRepository itemRequestRepository;
-    private ItemMapper itemMapper;
-    private CommentMapper commentMapper;
-
-    @BeforeEach
-    public void setUp() {
-        itemRepository = mock(ItemRepository.class);
-        userRepository = mock(UserRepository.class);
-        commentRepository = mock(CommentRepository.class);
-        bookingRepository = mock(BookingRepository.class);
-        itemRequestRepository = mock(ItemRequestRepository.class);
-        itemMapper = mock(ItemMapper.class);
-        commentMapper = mock(CommentMapper.class);
-        itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository,
-                bookingRepository, itemRequestRepository, itemMapper, commentMapper);
-    }
 
     @Test
-    public void create_shouldCreateNewItem() {
+    @Transactional
+    @DisplayName("Создание новой вещи")
+    @Sql(statements = "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');")
+    void testCreate_CreateNewItem() {
+        // given
         ItemDto itemDto = new ItemDto();
-        itemDto.setName("Test Item");
-        itemDto.setRequestId(1L);
+        itemDto.setName("test");
+        itemDto.setDescription("description");
+        itemDto.setAvailable(true);
 
-        User user = new User();
-        user.setId(1L);
+        // when
+        ItemDto persistedItem = itemService.create(itemDto, 1L);
 
-        ItemRequest itemRequest = new ItemRequest();
-        itemRequest.setId(1L);
-
-        Item item = new Item();
-        item.setId(1L);
-        item.setName("Test Item");
-
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
-        when(itemMapper.toEntity(any(ItemDto.class))).thenReturn(item);
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(itemMapper.toDto(any(Item.class))).thenReturn(itemDto);
-
-        ItemDto result = itemService.create(itemDto, 1L);
-
-        assertNotNull(result);
-        assertEquals("Test Item", result.getName());
-        verify(itemRepository, times(1)).save(any(Item.class));
+        // then
+        assertNotNull(persistedItem.getId());
+        assertEquals(itemDto.getName(), persistedItem.getName());
+        assertEquals(itemDto.getDescription(), persistedItem.getDescription());
+        assertEquals(itemDto.getAvailable(), persistedItem.getAvailable());
     }
 
     @Test
-    public void update_shouldUpdateItem() {
-        long userId = 1L;
-        long itemId = 1L;
+    @Transactional // проверить
+    @DisplayName("Создание новой вещи для несуществующего пользователя")
+    void testCreate_CreateNewItemForNotExistingUser() {
+        // given
         ItemDto itemDto = new ItemDto();
-        itemDto.setName("Updated Item");
+        itemDto.setName("test");
+        itemDto.setDescription("description");
+        itemDto.setAvailable(true);
 
-        User user = new User();
-        user.setId(userId);
-
-        Item item = new Item();
-        item.setId(itemId);
-        item.setOwner(user);
-
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(itemMapper.toDto(any(Item.class))).thenReturn(itemDto);
-
-        ItemDto result = itemService.update(itemDto, userId, itemId);
-
-        assertNotNull(result);
-        assertEquals("Updated Item", result.getName());
-        verify(itemRepository, times(1)).save(item);
+        // when & then
+        var exception = assertThrows(NotFoundException.class, () -> itemService.create(itemDto, 1L));
+        assertEquals(NotFoundException.class, exception.getClass());
+        assertEquals("User not found", exception.getMessage());
+        verify(itemRepository, never()).save(any(Item.class));
     }
 
     @Test
-    public void update_shouldThrowOutOfPermissionException_whenUserIsNotOwner() {
-        long userId = 2L;
-        long itemId = 1L;
+    @Transactional
+    @DisplayName("Обновление существующей вещи")
+    @Sql(statements = {
+            "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) "})
+    void testUpdate_UpdateExistingItem() {
+        // given
         ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("description");
+        itemDto.setAvailable(false);
 
-        User user = new User();
-        user.setId(1L); // Владелец с id 1L
+        // when
+        ItemDto persistedItem = itemService.update(itemDto, 1L, 1L);
 
-        Item item = new Item();
-        item.setId(itemId);
-        item.setOwner(user);
-
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-
-        assertThrows(OutOfPermissionException.class, () -> {
-            itemService.update(itemDto, userId, itemId);
-        });
-
-        verify(itemRepository, times(0)).save(any(Item.class));
+        // then
+        assertNotNull(persistedItem.getId());
+        assertEquals(itemDto.getName(), persistedItem.getName());
+        assertEquals(itemDto.getDescription(), persistedItem.getDescription());
+        assertEquals(itemDto.getAvailable(), persistedItem.getAvailable());
+        verify(itemRepository).save(any(Item.class));
     }
 
     @Test
-    public void getById_shouldReturnItemDto() {
-        long itemId = 1L;
-        Item item = new Item();
-        item.setId(itemId);
-
+    @Transactional
+    @DisplayName("Обновление вещи чужим пользователем")
+    @Sql(statements = {
+            "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) "})
+    void testUpdate_UpdateByNotOwner() {
+        // given
         ItemDto itemDto = new ItemDto();
-        itemDto.setId(itemId);
+        itemDto.setName("test");
+        itemDto.setDescription("description");
+        itemDto.setAvailable(false);
 
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemMapper.toDto(item)).thenReturn(itemDto);
-        when(commentRepository.getCommentsTextByItemId(itemId)).thenReturn(Collections.emptyList());
-
-        ItemDto result = itemService.getById(itemId);
-
-        assertNotNull(result);
-        assertEquals(itemId, result.getId());
-        verify(commentRepository, times(1)).getCommentsTextByItemId(itemId);
+        // when & then
+        var exception = assertThrows(OutOfPermissionException.class,
+                () -> itemService.update(itemDto, 2L, 1L));
+        assertEquals("User does not have permission to this item", exception.getMessage());
+        verify(itemRepository, times(1)).findById(anyLong());
+        verify(itemRepository, never()).save(any(Item.class));
     }
 
     @Test
-    public void getById_shouldThrowNotFoundException_whenItemDoesNotExist() {
-        long itemId = 1L;
-        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+    @Transactional
+    @DisplayName("Обновление несуществующей вещи")
+    @Sql(statements = {
+            "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) "})
+    void testUpdate_NotExistingItem() {
+        // given
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("test");
+        itemDto.setDescription("description");
+        itemDto.setAvailable(false);
 
-        assertThrows(NotFoundException.class, () -> {
-            itemService.getById(itemId);
-        });
-
-        verify(commentRepository, times(0)).getCommentsTextByItemId(itemId);
+        // when & then
+        var exception = assertThrows(NotFoundException.class,
+                () -> itemService.update(itemDto, 1L, 2L));
+        assertEquals("Item not found", exception.getMessage());
+        verify(itemRepository, times(1)).findById(2L);
+        verify(itemRepository, never()).save(any(Item.class));
     }
 
     @Test
-    public void createComment_shouldCreateComment_whenBookingExists() {
-        long itemId = 1L;
-        long userId = 1L;
+    @Transactional
+    @DisplayName("Получение существующей вещи по ID")
+    @Sql(statements = {
+            "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');",
+            "INSERT INTO users VALUES (2, 'Alexey', 'alexey@gmail.com')",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) ",
+            "INSERT INTO comments VALUES (1, 'cool', 1, 1)",
+            "INSERT INTO comments VALUES (2, 'not cool', 1, 2)"})
+    void testGetById_ExistingItem() {
+        // when
+        ItemDto persistedItem = itemService.getById(1L);
+
+        // then
+        assertEquals(1L, persistedItem.getId());
+        assertEquals("Thing", persistedItem.getName());
+        assertEquals("thing description", persistedItem.getDescription());
+        assertEquals(true, persistedItem.getAvailable());
+        Set<String> comments = Set.of("not cool", "cool");
+        assertEquals(comments, Set.copyOf(persistedItem.getComments()));
+    }
+
+    @Test
+    @DisplayName("Получение несуществующей вещи по ID")
+    void testGetById_NotExistingItem() {
+        // when & then
+        var exception = assertThrows(NotFoundException.class, () -> itemService.getById(1L));
+        assertEquals("Item not found", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Получение списка вещей пользователя")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'Alex', 'alex@gmail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) ",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (2, 'Another thing', 'another thing description', FALSE, 1) "
+    })
+    void testGetAllFromUser() {
+        // when
+        List<ItemDto> persistedItems = itemService.getAllFromUser(1L);
+
+        // then
+        assertEquals(2, persistedItems.size());
+        assertEquals(1L, persistedItems.get(0).getId());
+        assertEquals("Thing", persistedItems.get(0).getName());
+        assertEquals("thing description", persistedItems.get(0).getDescription());
+        assertEquals(true, persistedItems.get(0).getAvailable());
+        assertEquals(2L, persistedItems.get(1).getId());
+        assertEquals("Another thing", persistedItems.get(1).getName());
+        assertEquals("another thing description", persistedItems.get(1).getDescription());
+        assertEquals(false, persistedItems.get(1).getAvailable());
+    }
+
+    @Test
+    @DisplayName("Получение списка вещей несуществующего пользователя")
+    void testGetAllFromUser_NotExistingUser() {
+        var exception = assertThrows(NotFoundException.class, () -> itemService.getAllFromUser(1L));
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Поиск существующей вещи")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'ALEX', 'alex@gmail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) "
+    })
+    void testSearch_ExistingItem() {
+        // when
+        List<ItemDto> persistedItems = itemService.search("ing");
+
+        // then
+        assertEquals(1, persistedItems.size());
+        assertEquals(1L, persistedItems.getFirst().getId());
+    }
+
+    @Test
+    @DisplayName("Поиск несуществующей вещи")
+    void testSearch_NotExistingItem() {
+        // when
+        List<ItemDto> persistedItems = itemService.search("ttt");
+
+        // then
+        assertEquals(0, persistedItems.size());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Поиск нескольких вещей по описанию")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'Alex', 'alex@gmail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (1, 'Thing', 'thing description', TRUE, 1) ",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES (2, 'Another thing', 'another thing description', TRUE, 1) "
+    })
+    void testSearch_TwoItems() {
+        // when
+        List<ItemDto> persistedItems = itemService.search("description");
+        // then
+        assertEquals(2, persistedItems.size());
+        assertEquals(1L, persistedItems.get(0).getId());
+        assertEquals(2L, persistedItems.get(1).getId());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Создание комментария")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'user', 'user@mail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES ( 1, 'thing', 'thing description', TRUE, 1 )",
+            "INSERT INTO bookings (id, start_date, end_date, item_id, booker_id, status) " +
+                    "VALUES (" +
+                    "1, " +
+                    "CURRENT_TIMESTAMP - INTERVAL '1' MONTH, " +
+                    "CURRENT_TIMESTAMP - INTERVAL '1' DAY, " +
+                    "1, " +
+                    "1, " +
+                    "'APPROVED')"
+    })
+    void testCreateComment() {
+        // given
         CommentDto commentDto = new CommentDto();
-        commentDto.setText("Nice item");
+        commentDto.setText("cool");
 
-        User user = new User();
-        user.setId(userId);
+        // when
+        CommentDto createdComment = itemService.createComment(1L, commentDto, 1L);
 
-        Item item = new Item();
-        item.setId(itemId);
-
-        Comment comment = new Comment();
-        comment.setText("Nice item");
-
-        when(bookingRepository.existsByBookerIdAndItemIdPast(userId, itemId)).thenReturn(true);
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
-        when(commentMapper.toDto(any(Comment.class))).thenReturn(commentDto);
-
-        CommentDto result = itemService.createComment(itemId, commentDto, userId);
-
-        assertNotNull(result);
-        assertEquals("Nice item", result.getText());
-        verify(commentRepository, times(1)).save(any(Comment.class));
+        // then
+        assertEquals(1L, createdComment.getId());
+        assertEquals("user", createdComment.getAuthorName());
+        assertEquals("cool", createdComment.getText());
+        assertEquals(1, itemService.getById(1L).getComments().size());
     }
 
     @Test
-    public void createComment_shouldThrowItemNotAvailableException_whenBookingDoesNotExist() {
-        long itemId = 1L;
-        long userId = 1L;
+    @Transactional
+    @DisplayName("Создание комментария для незавершенного бронирования")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'user', 'user@mail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES ( 1, 'thing', 'thing description', TRUE, 1 )",
+            "INSERT INTO bookings (id, start_date, end_date, item_id, booker_id, status) " +
+                    "VALUES (" +
+                    "1, " +
+                    "CURRENT_TIMESTAMP - INTERVAL '1' MONTH, " +
+                    "CURRENT_TIMESTAMP + INTERVAL '1' DAY, " +
+                    "1, " +
+                    "1, " +
+                    "'APPROVED');\n"
+    })
+    void testCreateComment_NotFinishedBooking() {
+        // given
         CommentDto commentDto = new CommentDto();
+        commentDto.setText("cool");
 
-        when(bookingRepository.existsByBookerIdAndItemIdPast(userId, itemId)).thenReturn(false);
+        // when & then
+        var exception = assertThrows(ItemNotAvailableException.class,
+                () -> itemService.createComment(1L, commentDto, 1L));
+        assertEquals("Not allowed for current booking", exception.getMessage());
+    }
 
-        assertThrows(ItemNotAvailableException.class, () -> {
-            itemService.createComment(itemId, commentDto, userId);
-        });
+    @Test
+    @Transactional
+    @DisplayName("Создание комментария для несуществующего бронирования")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'user', 'user@mail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES ( 1, 'thing', 'thing description', TRUE, 1 )"
+    })
+    void testCreateBooking_NotExistingBooking() {
+        // given
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("cool");
 
-        verify(commentRepository, times(0)).save(any(Comment.class));
+        // when & then
+        var exception = assertThrows(NotFoundException.class,
+                () -> itemService.createComment(1L, commentDto, 1L));
+        assertEquals("Booking with this item not exists", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Создание комментария чужим пользователем")
+    @Sql(statements = {
+            "INSERT INTO users VALUES ( 1, 'user', 'user@mail.com' )",
+            "INSERT INTO items (id, name, description, available, owner_id) " +
+                    "VALUES ( 1, 'thing', 'thing description', TRUE, 1 )",
+            "INSERT INTO bookings (id, start_date, end_date, item_id, booker_id, status) " +
+                    "VALUES (" +
+                    "1, " +
+                    "CURRENT_TIMESTAMP - INTERVAL '1' MONTH, " +
+                    "CURRENT_TIMESTAMP + INTERVAL '1' DAY, " +
+                    "1, " +
+                    "1, " +
+                    "'APPROVED');\n"
+    })
+    void testCreateComment_anotherUser() {
+        // given
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("cool");
+
+        // when & then
+        var exception = assertThrows(ItemNotAvailableException.class,
+                () -> itemService.createComment(1L, commentDto, 11L));
+        assertEquals("Not allowed for current booking", exception.getMessage());
     }
 }

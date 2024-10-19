@@ -3,9 +3,9 @@ package ru.practicum.item.api;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.config.FeignClientConfig;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.util.config.FeignClientConfig;
 
 @FeignClient(url = "${shareit-server.url}",
         path = "/items",

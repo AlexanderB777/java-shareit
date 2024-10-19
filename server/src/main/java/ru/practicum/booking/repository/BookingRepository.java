@@ -36,4 +36,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "AND b.item.id = :itemId " +
             "AND b.end <= CURRENT_TIMESTAMP")
     boolean existsByBookerIdAndItemIdPast(long bookerId, long itemId);
+
+    boolean existsByItemId(long itemId);
 }

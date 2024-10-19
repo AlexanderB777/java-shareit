@@ -3,8 +3,8 @@ package ru.practicum.user.api;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.config.FeignClientConfig;
 import ru.practicum.user.dto.UserDto;
+import ru.practicum.util.config.FeignClientConfig;
 
 @FeignClient(url = "${shareit-server.url}",
         path = "/users",

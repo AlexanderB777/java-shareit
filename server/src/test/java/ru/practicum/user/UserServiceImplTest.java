@@ -1,126 +1,127 @@
 package ru.practicum.user;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.mapper.UserMapper;
-import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
-import ru.practicum.user.service.UserServiceImpl;
+import ru.practicum.user.service.UserService;
 import ru.practicum.util.exception.NotFoundException;
 import ru.practicum.util.exception.ValidationException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@DirtiesContext
 public class UserServiceImplTest {
+    @Autowired
+    private UserService userService;
 
-    @InjectMocks
-    private UserServiceImpl userService;
-
-    @Mock
+    @SpyBean
     private UserRepository userRepository;
 
-    @Mock
-    private UserMapper userMapper;
+    @Test
+    @Transactional
+    @DisplayName("Создание нового пользователя")
+    void testSave_createNewUser() {
+        // given
+        UserDto userDto = new UserDto();
+        userDto.setName("Alex");
+        userDto.setEmail("alex@gmail.com");
 
-    private UserDto userDto;
-    private User user;
+        // when
+        UserDto persistedUser = userService.save(userDto);
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        userDto = new UserDto();
-        userDto.setId(1L);
-        userDto.setName("Test User");
-        userDto.setEmail("test@example.com");
-
-        user = new User();
-        user.setId(1L);
-        user.setName("Test User");
-        user.setEmail("test@example.com");
+        // then
+        assertNotNull(persistedUser.getId());
+        assertEquals("Alex", persistedUser.getName());
+        assertEquals("alex@gmail.com", persistedUser.getEmail());
     }
 
     @Test
-    public void save_shouldReturnSavedUser_whenEmailDoesNotExist() {
-        when(userRepository.existsByEmail(any(String.class))).thenReturn(false);
-        when(userMapper.toEntity(any(UserDto.class))).thenReturn(user);
-        when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+    @Transactional
+    @DisplayName("Создание пользователя с конфликтом Email адреса")
+    @Sql(statements = "INSERT INTO users VALUES (1, 'Alexander', 'alex@gmail.com');")
+    void testSave_createNewUserConflictEmail() {
+        // given
+        UserDto userDto = new UserDto();
+        userDto.setName("Alex");
+        userDto.setEmail("alex@gmail.com");
 
-        UserDto savedUser = userService.save(userDto);
-
-        assertEquals(savedUser.getId(), userDto.getId());
-        verify(userRepository).save(any(User.class));
-    }
-
-    @Test
-    public void save_shouldThrowValidationException_whenEmailAlreadyExists() {
-        when(userRepository.existsByEmail(any(String.class))).thenReturn(true);
-
-        ValidationException exception =
-                org.junit.jupiter.api.Assertions.assertThrows(ValidationException.class, () -> {
-                    userService.save(userDto);
-                });
-
+        // when & then
+        var exception = assertThrows(ValidationException.class, () -> userService.save(userDto));
         assertEquals("Conflict email", exception.getMessage());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    public void update_shouldReturnUpdatedUser() {
-        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.of(user));
-        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+    @Transactional
+    @DisplayName("Обновление пользователя")
+    @Sql(statements = "INSERT INTO users VALUES ( 1, 'Alex', 'alex@gmail.com' )")
+    void testUpdate_ExistingUser() {
+        // given
+        UserDto userDto = new UserDto();
+        userDto.setName("AlexUpdated");
 
+        // when
         UserDto updatedUser = userService.update(userDto, 1L);
 
-        assertEquals(updatedUser.getId(), userDto.getId());
-        verify(userRepository).findById(anyLong());
+        // then
+        assertEquals("AlexUpdated", updatedUser.getName());
     }
 
     @Test
-    public void update_shouldThrowNotFoundException_whenUserDoesNotExist() {
-        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
+    @Transactional
+    @DisplayName("Обновление несуществующего пользователя")
+    void testUpdate_NotExistingUser() {
+        // given
+        UserDto userDto = new UserDto();
+        userDto.setName("AlexUpdated");
 
-        NotFoundException exception =
-                org.junit.jupiter.api.Assertions.assertThrows(NotFoundException.class, () -> {
-                    userService.update(userDto, 999L);
-                });
-
-        assertEquals("Пользователя не существует", exception.getMessage());
+        // when & then
+        var exception = assertThrows(NotFoundException.class, () -> userService.update(userDto, 1L));
+        assertEquals("User not found", exception.getMessage());
     }
 
     @Test
-    public void getById_shouldReturnUser() {
-        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.of(user));
-        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+    @Transactional
+    @DisplayName("Получение существующего пользователя по id")
+    @Sql(statements = "INSERT INTO users VALUES ( 1, 'Alex', 'alex@gmail.com' )")
+    void testGetById_ExistingUser() {
+        // when
+        UserDto userDto = userService.getById(1L);
 
-        UserDto foundUser = userService.getById(1L);
-
-        assertEquals(foundUser.getId(), userDto.getId());
+        // then
+        assertEquals("Alex", userDto.getName());
+        assertEquals("alex@gmail.com", userDto.getEmail());
     }
 
     @Test
-    public void getById_shouldThrowNotFoundException_whenUserDoesNotExist() {
-        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
-
-        NotFoundException exception =
-                org.junit.jupiter.api.Assertions.assertThrows(NotFoundException.class, () -> {
-                    userService.getById(999L);
-                });
-
-        assertEquals("Пользователя не существует", exception.getMessage());
+    @DisplayName("Получение несуществующего пользователя по id")
+    void testGetById_NotExistingUser() {
+        // when & then
+        var exception = assertThrows(NotFoundException.class, () -> userService.getById(1L));
+        assertEquals("User not found", exception.getMessage());
     }
 
     @Test
-    public void delete_shouldCallDeleteMethod() {
+    @Transactional
+    @DisplayName("Удаление пользователя")
+    @Sql(statements = "INSERT INTO users VALUES ( 1, 'Alex', 'alex@gmail.com' )")
+    void testDelete() {
+        // when
         userService.delete(1L);
-        verify(userRepository).deleteById(1L);
+
+        // then
+        verify(userRepository, times(1)).deleteById(anyLong());
+        var exception = assertThrows(NotFoundException.class, () -> userService.getById(1L));
+        assertEquals("User not found", exception.getMessage());
     }
 }

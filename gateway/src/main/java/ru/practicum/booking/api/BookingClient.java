@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.dto.BookingDto;
 import ru.practicum.booking.status.BookingState;
-import ru.practicum.config.FeignClientConfig;
+import ru.practicum.util.config.FeignClientConfig;
 
 @FeignClient(url = "${shareit-server.url}",
         path = "/bookings",

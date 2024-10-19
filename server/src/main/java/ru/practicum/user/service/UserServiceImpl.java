@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto, long userId) {
         User user = repository
                 .findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя не существует"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         if (userDto.getName() != null) user.setName(userDto.getName());
         if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
         if (repository.existsByEmail(userDto.getEmail())) {
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(long id) {
         return mapper.toDto(repository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователя не существует")));
+                .orElseThrow(() -> new NotFoundException("User not found")));
     }
 
     @Override

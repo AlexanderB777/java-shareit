@@ -2,10 +2,10 @@ package ru.practicum.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,19 +18,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @MockBean
     private UserService userService;
 
@@ -45,12 +42,14 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Создание пользователя")
     public void createUser_shouldReturnCreatedUser() throws Exception {
         when(userService.save(any(UserDto.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userDto)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Test User"))
@@ -59,13 +58,7 @@ public class UserControllerTest {
 
     @Test
     public void createUser_shouldThrowValidationException_whenEmailAlreadyExists() throws Exception {
-        when(userService.save(any(UserDto.class))).thenAnswer(invocation -> {
-            UserDto userDtoArg = invocation.getArgument(0);
-            if ("test@example.com".equals(userDtoArg.getEmail())) {
-                throw new ValidationException("Conflict email");
-            }
-            return userDtoArg;
-        });
+        when(userService.save(any(UserDto.class))).thenThrow(new ValidationException("Conflict email"));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)

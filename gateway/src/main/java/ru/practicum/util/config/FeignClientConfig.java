@@ -1,4 +1,4 @@
-package ru.practicum.config;
+package ru.practicum.util.config;
 
 import feign.Client;
 import feign.Response;

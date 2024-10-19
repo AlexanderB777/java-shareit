@@ -2,8 +2,8 @@ package ru.practicum.request.api;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.config.FeignClientConfig;
 import ru.practicum.request.dto.ItemRequestDto;
+import ru.practicum.util.config.FeignClientConfig;
 
 import java.util.List;
 

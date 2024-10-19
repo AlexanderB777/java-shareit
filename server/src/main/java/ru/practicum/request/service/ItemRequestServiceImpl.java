@@ -2,7 +2,6 @@ package ru.practicum.request.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.item.repository.ItemRepository;
 import ru.practicum.request.dto.ItemRequestDto;
 import ru.practicum.request.mapper.ItemRequestMapper;
 import ru.practicum.request.model.ItemRequest;
@@ -18,7 +17,6 @@ import java.util.List;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository repository;
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
     private final ItemRequestMapper mapper;
 
     @Override
@@ -33,6 +31,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getPersonalRequests(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
         return mapper.toDto(repository.findByRequestor_Id(userId));
     }
 

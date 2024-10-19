@@ -76,6 +76,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllFromUser(long userId) {
+        if (userRepository.findById(userId).isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
         return mapper.toDtoList(repository.findAllByOwnerId(userId));
     }
 
@@ -89,6 +92,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long itemId, CommentDto commentDto, Long userId) {
+        if (!bookingRepository.existsByItemId(itemId)) {
+            throw new NotFoundException("Booking with this item not exists");
+        }
         if (!bookingRepository.existsByBookerIdAndItemIdPast(userId, itemId)) {
             throw new ItemNotAvailableException("Not allowed for current booking");
         }

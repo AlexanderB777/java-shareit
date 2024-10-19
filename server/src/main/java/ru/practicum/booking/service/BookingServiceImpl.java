@@ -50,9 +50,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDtoResponse approve(Long bookingId, Long bookerId, Boolean approved) {
+    public BookingDtoResponse approve(Long bookingId, Long ownerId, Boolean approved) {
         Booking booking = getFromRepository(bookingId);
-        if (!Objects.equals(booking.getItem().getOwner().getId(), bookerId)) {
+        if (!Objects.equals(booking.getItem().getOwner().getId(), ownerId)) {
             throw new OutOfPermissionException("User not allowed to approve booking");
         }
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -62,7 +62,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDtoResponse getBookingById(long bookingId, long userId) {
         Booking booking = getFromRepository(bookingId);
-        if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
+        if (booking.getBooker().getId() == userId ||
+                booking.getItem().getOwner().getId() == userId) {
             return responseMapper.map(booking);
         }
         return null;
