@@ -30,7 +30,7 @@ class BookingDtoTest {
     private static final LocalDateTime END_TIME = LocalDateTime
             .of(2021, 1, 1, 0, 0, 0);
     private static final String END_TIME_STRING = "2021-01-01T00:00:00";
-    private static final String NULL_VIOLATION = "не должно равняться null";
+    private static final String NULL_VIOLATION = "{jakarta.validation.constraints.NotNull.message}";
 
     @Test
     void testBookingDto() throws Exception {
@@ -58,7 +58,7 @@ class BookingDtoTest {
         Set<ConstraintViolation<BookingDto>> violations = validator.validate(bookingDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(NULL_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(NULL_VIOLATION);
     }
 
     @Test
@@ -70,7 +70,7 @@ class BookingDtoTest {
         Set<ConstraintViolation<BookingDto>> violations = validator.validate(bookingDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(NULL_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(NULL_VIOLATION);
     }
 
     @Test
@@ -82,7 +82,7 @@ class BookingDtoTest {
         Set<ConstraintViolation<BookingDto>> violations = validator.validate(bookingDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(NULL_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(NULL_VIOLATION);
     }
 
     @Test

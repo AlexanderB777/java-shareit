@@ -1,6 +1,5 @@
 package ru.practicum.request.dto;
 
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class ItemRequestDtoJsonTest {
     private final JacksonTester<ItemRequestDto> jacksonTester;
-    private final Validator validator;
 
     private static final LocalDate THE_MOMENT = LocalDate.of(2024, 10, 1);
     private static final String THE_MOMENT_STRING = "2024-10-01";

@@ -21,8 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemDtoTest {
     private final JacksonTester<ItemDto> jacksonTester;
     private final Validator validator;
-    private static final String BLANK_VIOLATION = "не должно быть пустым";
-    private static final String NULL_VIOLATION = "не должно равняться null";
+
+    private static final String NULL_VIOLATION = "{jakarta.validation.constraints.NotNull.message}";
+    private static final String BLANK_VIOLATION = "{jakarta.validation.constraints.NotBlank.message}";
 
     @Test
     void testItemDto() throws Exception {
@@ -58,7 +59,7 @@ class ItemDtoTest {
         Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(BLANK_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
     }
 
     @Test
@@ -70,7 +71,7 @@ class ItemDtoTest {
         Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(BLANK_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
     }
 
     @Test
@@ -82,7 +83,7 @@ class ItemDtoTest {
         Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains(NULL_VIOLATION);
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(NULL_VIOLATION);
     }
 
     @Test

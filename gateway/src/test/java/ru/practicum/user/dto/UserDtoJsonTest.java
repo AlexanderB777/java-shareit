@@ -21,6 +21,9 @@ class UserDtoJsonTest {
     private final JacksonTester<UserDto> jacksonTester;
     private final Validator validator;
 
+    private static final String EMAIL_VIOLATION = "{jakarta.validation.constraints.Email.message}";
+    private static final String BLANK_VIOLATION = "{jakarta.validation.constraints.NotBlank.message}";
+
     @Test
     void testUserDto() throws Exception {
         UserDto userDto = new UserDto();
@@ -44,7 +47,7 @@ class UserDtoJsonTest {
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains("должно иметь формат адреса электронной почты");
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(EMAIL_VIOLATION);
     }
 
     @Test
@@ -56,7 +59,7 @@ class UserDtoJsonTest {
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
 
         assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).contains("не должно быть пустым");
+        assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
     }
 
     @Test
