@@ -1,15 +1,16 @@
 package ru.practicum.request.service;
 
 import ru.practicum.request.dto.ItemRequestDto;
+import ru.practicum.request.dto.ItemRequestDtoResponse;
 
 import java.util.List;
 
 public interface ItemRequestService {
-    ItemRequestDto create(ItemRequestDto itemRequestDto, Long requesterId);
+    ItemRequestDtoResponse create(ItemRequestDto itemRequestDto, Long requesterId);
 
-    List<ItemRequestDto> getPersonalRequests(Long userId);
+    List<ItemRequestDtoResponse> getPersonalRequests(Long userId);
 
-    List<ItemRequestDto> getAllRequests();
+    List<ItemRequestDtoResponse> getAllRequests();
 
-    ItemRequestDto getById(Long id);
+    ItemRequestDtoResponse getById(Long id);
 }

@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.request.dto.ItemRequestDto;
+import ru.practicum.request.dto.ItemRequestDtoResponse;
 import ru.practicum.request.service.ItemRequestService;
 
 import java.util.Collections;
@@ -39,11 +40,11 @@ public class ItemRequestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private ItemRequestDto requestDto;
+    private ItemRequestDtoResponse requestDto;
 
     @BeforeEach
     void setUp() {
-        requestDto = new ItemRequestDto();
+        requestDto = new ItemRequestDtoResponse();
         requestDto.setId(1L);
         requestDto.setDescription("Request description");
     }
@@ -64,7 +65,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void getPersonalRequests_shouldReturnListOfRequests() throws Exception {
-        List<ItemRequestDto> requests = Collections.singletonList(requestDto);
+        List<ItemRequestDtoResponse> requests = Collections.singletonList(requestDto);
         Mockito.when(service.getPersonalRequests(anyLong()))
                 .thenReturn(requests);
 
@@ -78,7 +79,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void getAllRequests_shouldReturnListOfRequests() throws Exception {
-        List<ItemRequestDto> requests = Collections.singletonList(requestDto);
+        List<ItemRequestDtoResponse> requests = Collections.singletonList(requestDto);
         Mockito.when(service.getAllRequests())
                 .thenReturn(requests);
 

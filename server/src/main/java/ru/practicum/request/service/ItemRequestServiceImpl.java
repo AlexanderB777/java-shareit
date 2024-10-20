@@ -3,6 +3,7 @@ package ru.practicum.request.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.request.dto.ItemRequestDto;
+import ru.practicum.request.dto.ItemRequestDtoResponse;
 import ru.practicum.request.mapper.ItemRequestMapper;
 import ru.practicum.request.model.ItemRequest;
 import ru.practicum.request.repository.ItemRequestRepository;
@@ -20,9 +21,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestMapper mapper;
 
     @Override
-    public ItemRequestDto create(ItemRequestDto itemRequestDto, Long requesterId) {
-        itemRequestDto.setCreated(LocalDate.now());
+    public ItemRequestDtoResponse create(ItemRequestDto itemRequestDto, Long requesterId) {
         ItemRequest itemRequest = mapper.toEntity(itemRequestDto);
+        itemRequest.setCreated(LocalDate.now());
         itemRequest.setRequestor(userRepository
                 .findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
@@ -30,7 +31,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getPersonalRequests(Long userId) {
+    public List<ItemRequestDtoResponse> getPersonalRequests(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User not found");
         }
@@ -38,12 +39,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getAllRequests() {
+    public List<ItemRequestDtoResponse> getAllRequests() {
         return mapper.toDto(repository.findAllByOrderByCreatedDesc());
     }
 
     @Override
-    public ItemRequestDto getById(Long id) {
+    public ItemRequestDtoResponse getById(Long id) {
         ItemRequest itemRequest = repository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("Request not found"));

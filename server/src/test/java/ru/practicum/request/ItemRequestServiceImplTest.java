@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.request.dto.ItemRequestDto;
+import ru.practicum.request.dto.ItemRequestDtoResponse;
 import ru.practicum.request.model.ItemRequest;
 import ru.practicum.request.repository.ItemRequestRepository;
 import ru.practicum.request.service.ItemRequestService;
@@ -40,7 +41,7 @@ class ItemRequestServiceImplTest {
         itemRequestDto.setDescription("description");
 
         // when
-        ItemRequestDto request = itemRequestService.create(itemRequestDto, 1L);
+        ItemRequestDtoResponse request = itemRequestService.create(itemRequestDto, 1L);
 
         // then
         assertEquals(request.getDescription(), "description");
@@ -71,7 +72,7 @@ class ItemRequestServiceImplTest {
     })
     void testGetPersonalRequests() {
         // when
-        List<ItemRequestDto> requests = itemRequestService.getPersonalRequests(1L);
+        List<ItemRequestDtoResponse> requests = itemRequestService.getPersonalRequests(1L);
 
         // then
         assertEquals(2, requests.size());
@@ -92,7 +93,7 @@ class ItemRequestServiceImplTest {
     @DisplayName("Получение пустого списка запросов")
     void testGetPersonalRequests_NoRequests() {
         // when
-        List<ItemRequestDto> requests = itemRequestService.getPersonalRequests(1L);
+        List<ItemRequestDtoResponse> requests = itemRequestService.getPersonalRequests(1L);
 
         // then
         assertEquals(0, requests.size());
@@ -109,7 +110,7 @@ class ItemRequestServiceImplTest {
     })
     void testGetAllRequests() {
         // when
-        List<ItemRequestDto> requests = itemRequestService.getAllRequests();
+        List<ItemRequestDtoResponse> requests = itemRequestService.getAllRequests();
 
         // then
         assertEquals(2, requests.size());
@@ -120,7 +121,7 @@ class ItemRequestServiceImplTest {
     @DisplayName("Получение пустого списка всех запросов")
     void testGetAllRequests_NoRequests() {
         // when
-        List<ItemRequestDto> requests = itemRequestService.getAllRequests();
+        List<ItemRequestDtoResponse> requests = itemRequestService.getAllRequests();
 
         // then
         assertEquals(0, requests.size());
@@ -133,7 +134,7 @@ class ItemRequestServiceImplTest {
     @Sql(statements = "INSERT INTO requests VALUES ( 1, 'description1', 1, CURRENT_TIMESTAMP() )")
     void testGetById() {
         // when
-        ItemRequestDto itemRequestDto = itemRequestService.getById(1L);
+        ItemRequestDtoResponse itemRequestDto = itemRequestService.getById(1L);
 
         // then
         assertEquals(1, itemRequestDto.getId());
