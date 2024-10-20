@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.item.mapper.ItemMapper;
 import ru.practicum.item.model.Item;
 import ru.practicum.request.model.ItemRequest;
@@ -25,14 +26,12 @@ public class ItemMapperTest {
     @Test
     public void toEntity_shouldMapDtoToEntity() {
         ItemDto itemDto = new ItemDto();
-        itemDto.setId(1L);
         itemDto.setName("Test Item");
         itemDto.setDescription("Test Description");
 
         Item item = itemMapper.toEntity(itemDto);
 
         assertNotNull(item);
-        assertEquals(1L, item.getId());
         assertEquals("Test Item", item.getName());
         assertEquals("Test Description", item.getDescription());
     }
@@ -48,7 +47,7 @@ public class ItemMapperTest {
         item.setDescription("Test Description");
         item.setItemRequest(request);
 
-        ItemDto itemDto = itemMapper.toDto(item);
+        ItemDtoResponse itemDto = itemMapper.toDto(item);
 
         assertNotNull(itemDto);
         assertEquals(1L, itemDto.getId());
@@ -69,7 +68,7 @@ public class ItemMapperTest {
 
         List<Item> items = List.of(item1, item2);
 
-        List<ItemDto> itemDtos = itemMapper.toDtoList(items);
+        List<ItemDtoResponse> itemDtos = itemMapper.toDtoList(items);
 
         assertNotNull(itemDtos);
         assertEquals(2, itemDtos.size());

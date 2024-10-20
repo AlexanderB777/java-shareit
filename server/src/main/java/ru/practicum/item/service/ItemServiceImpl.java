@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.booking.repository.BookingRepository;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.item.mapper.CommentMapper;
 import ru.practicum.item.mapper.ItemMapper;
 import ru.practicum.item.model.Comment;
@@ -32,7 +33,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
 
     @Override
-    public ItemDto create(ItemDto itemDto, long userId) {
+    public ItemDtoResponse create(ItemDto itemDto, long userId) {
         Item newItem = mapper.toEntity(itemDto);
         Long itemRequestId = itemDto.getRequestId();
         if (itemRequestId != null) {
@@ -47,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(ItemDto itemDto, long userId, long itemId) {
+    public ItemDtoResponse update(ItemDto itemDto, long userId, long itemId) {
         Item foundItem = repository
                 .findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -67,15 +68,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getById(long itemId) {
+    public ItemDtoResponse getById(long itemId) {
         Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
-        ItemDto itemDto = mapper.toDto(item);
+        ItemDtoResponse itemDto = mapper.toDto(item);
         itemDto.setComments(commentRepository.getCommentsTextByItemId(itemId));
         return itemDto;
     }
 
     @Override
-    public List<ItemDto> getAllFromUser(long userId) {
+    public List<ItemDtoResponse> getAllFromUser(long userId) {
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("User not found");
         }
@@ -83,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDtoResponse> search(String text) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }

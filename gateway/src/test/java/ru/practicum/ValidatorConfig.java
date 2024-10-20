@@ -1,4 +1,4 @@
-package ru.practicum.user.dto;
+package ru.practicum;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

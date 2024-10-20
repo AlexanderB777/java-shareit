@@ -2,7 +2,7 @@ package ru.practicum.booking.dto;
 
 import lombok.Data;
 import ru.practicum.booking.status.BookingStatus;
-import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -14,5 +14,5 @@ public class BookingDtoResponse {
     private LocalDateTime end;
     private BookingStatus status;
     private UserDto booker;
-    private ItemDto item;
+    private ItemDtoResponse item;
 }

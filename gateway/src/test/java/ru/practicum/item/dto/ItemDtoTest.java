@@ -9,7 +9,8 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Import;
-import ru.practicum.user.dto.ValidatorConfig;
+import ru.practicum.ValidatorConfig;
+import ru.practicum.util.Marker;
 
 import java.util.Set;
 
@@ -28,7 +29,6 @@ class ItemDtoTest {
     @Test
     void testItemDto() throws Exception {
         ItemDto itemDto = new ItemDto();
-        itemDto.setId(1L);
         itemDto.setName("name");
         itemDto.setDescription("description");
         itemDto.setAvailable(true);
@@ -36,9 +36,6 @@ class ItemDtoTest {
         JsonContent<ItemDto> jsonContent = jacksonTester.write(itemDto);
 
         assertThat(jsonContent).isNotNull();
-        assertThat(jsonContent)
-                .extractingJsonPathNumberValue("$.id")
-                .isEqualTo(1);
         assertThat(jsonContent)
                 .extractingJsonPathStringValue("$.name")
                 .isEqualTo("name");
@@ -56,7 +53,7 @@ class ItemDtoTest {
 
         ItemDto itemDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
@@ -68,7 +65,7 @@ class ItemDtoTest {
 
         ItemDto itemDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
@@ -80,7 +77,7 @@ class ItemDtoTest {
 
         ItemDto itemDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessageTemplate()).contains(NULL_VIOLATION);
@@ -92,7 +89,7 @@ class ItemDtoTest {
 
         ItemDto itemDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(3);
     }

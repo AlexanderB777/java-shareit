@@ -2,19 +2,20 @@ package ru.practicum.item.service;
 
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 
 import java.util.List;
 
 public interface ItemService {
-    ItemDto create(ItemDto itemDto, long userId);
+    ItemDtoResponse create(ItemDto itemDto, long userId);
 
-    ItemDto update(ItemDto itemDto, long userId, long itemId);
+    ItemDtoResponse update(ItemDto itemDto, long userId, long itemId);
 
-    ItemDto getById(long itemId);
+    ItemDtoResponse getById(long itemId);
 
-    List<ItemDto> getAllFromUser(long userId);
+    List<ItemDtoResponse> getAllFromUser(long userId);
 
-    List<ItemDto> search(String text);
+    List<ItemDtoResponse> search(String text);
 
     CommentDto createComment(Long itemId, CommentDto commentDto, Long userId);
 }

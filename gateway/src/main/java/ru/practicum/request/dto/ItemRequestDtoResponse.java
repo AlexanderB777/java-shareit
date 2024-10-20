@@ -1,7 +1,6 @@
 package ru.practicum.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.item.dto.ItemDto;
 

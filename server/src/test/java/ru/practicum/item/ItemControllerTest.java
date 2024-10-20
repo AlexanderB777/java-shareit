@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.item.service.ItemService;
 import ru.practicum.util.exception.NotFoundException;
 
@@ -40,13 +41,18 @@ public class ItemControllerTest {
 
     private ItemDto itemDto;
     private CommentDto commentDto;
+    private ItemDtoResponse itemDtoResponse;
 
     @BeforeEach
     public void setUp() {
         itemDto = new ItemDto();
-        itemDto.setId(1L);
         itemDto.setName("Test Item");
         itemDto.setDescription("Test Description");
+
+        itemDtoResponse = new ItemDtoResponse();
+        itemDtoResponse.setId(1L);
+        itemDtoResponse.setName("Test Item");
+        itemDtoResponse.setDescription("Test Description");
 
         commentDto = new CommentDto();
         commentDto.setId(1L);
@@ -55,7 +61,7 @@ public class ItemControllerTest {
 
     @Test
     public void createItem_shouldReturnCreatedItem() throws Exception {
-        when(itemService.create(any(ItemDto.class), anyLong())).thenReturn(itemDto);
+        when(itemService.create(any(ItemDto.class), anyLong())).thenReturn(itemDtoResponse);
 
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +75,7 @@ public class ItemControllerTest {
 
     @Test
     public void updateItem_shouldReturnUpdatedItem() throws Exception {
-        when(itemService.update(any(ItemDto.class), anyLong(), anyLong())).thenReturn(itemDto);
+        when(itemService.update(any(ItemDto.class), anyLong(), anyLong())).thenReturn(itemDtoResponse);
 
         mockMvc.perform(patch("/items/{itemId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +89,7 @@ public class ItemControllerTest {
 
     @Test
     public void getItem_shouldReturnItem() throws Exception {
-        when(itemService.getById(anyLong())).thenReturn(itemDto);
+        when(itemService.getById(anyLong())).thenReturn(itemDtoResponse);
 
         mockMvc.perform(get("/items/{id}", 1L))
                 .andExpect(status().isOk())
@@ -103,7 +109,7 @@ public class ItemControllerTest {
 
     @Test
     public void getAllItemsFromUser_shouldReturnListOfItems() throws Exception {
-        when(itemService.getAllFromUser(anyLong())).thenReturn(List.of(itemDto));
+        when(itemService.getAllFromUser(anyLong())).thenReturn(List.of(itemDtoResponse));
 
         mockMvc.perform(get("/items")
                         .header(USER_ID_HEADER, 1L))
@@ -115,7 +121,7 @@ public class ItemControllerTest {
 
     @Test
     public void searchItems_shouldReturnListOfItems() throws Exception {
-        when(itemService.search(anyString())).thenReturn(List.of(itemDto));
+        when(itemService.search(anyString())).thenReturn(List.of(itemDtoResponse));
 
         mockMvc.perform(get("/items/search")
                         .param("text", "test"))

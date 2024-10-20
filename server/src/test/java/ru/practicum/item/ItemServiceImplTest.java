@@ -9,6 +9,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.item.model.Item;
 import ru.practicum.item.repository.ItemRepository;
 import ru.practicum.item.service.ItemService;
@@ -44,7 +45,7 @@ public class ItemServiceImplTest {
         itemDto.setAvailable(true);
 
         // when
-        ItemDto persistedItem = itemService.create(itemDto, 1L);
+        ItemDtoResponse persistedItem = itemService.create(itemDto, 1L);
 
         // then
         assertNotNull(persistedItem.getId());
@@ -85,7 +86,7 @@ public class ItemServiceImplTest {
         itemDto.setAvailable(false);
 
         // when
-        ItemDto persistedItem = itemService.update(itemDto, 1L, 1L);
+        ItemDtoResponse persistedItem = itemService.update(itemDto, 1L, 1L);
 
         // then
         assertNotNull(persistedItem.getId());
@@ -151,7 +152,7 @@ public class ItemServiceImplTest {
             "INSERT INTO comments VALUES (2, 'not cool', 1, 2)"})
     void testGetById_ExistingItem() {
         // when
-        ItemDto persistedItem = itemService.getById(1L);
+        ItemDtoResponse persistedItem = itemService.getById(1L);
 
         // then
         assertEquals(1L, persistedItem.getId());
@@ -182,7 +183,7 @@ public class ItemServiceImplTest {
     })
     void testGetAllFromUser() {
         // when
-        List<ItemDto> persistedItems = itemService.getAllFromUser(1L);
+        List<ItemDtoResponse> persistedItems = itemService.getAllFromUser(1L);
 
         // then
         assertEquals(2, persistedItems.size());
@@ -213,7 +214,7 @@ public class ItemServiceImplTest {
     })
     void testSearch_ExistingItem() {
         // when
-        List<ItemDto> persistedItems = itemService.search("ing");
+        List<ItemDtoResponse> persistedItems = itemService.search("ing");
 
         // then
         assertEquals(1, persistedItems.size());
@@ -224,7 +225,7 @@ public class ItemServiceImplTest {
     @DisplayName("Поиск несуществующей вещи")
     void testSearch_NotExistingItem() {
         // when
-        List<ItemDto> persistedItems = itemService.search("ttt");
+        List<ItemDtoResponse> persistedItems = itemService.search("ttt");
 
         // then
         assertEquals(0, persistedItems.size());
@@ -242,7 +243,7 @@ public class ItemServiceImplTest {
     })
     void testSearch_TwoItems() {
         // when
-        List<ItemDto> persistedItems = itemService.search("description");
+        List<ItemDtoResponse> persistedItems = itemService.search("description");
         // then
         assertEquals(2, persistedItems.size());
         assertEquals(1L, persistedItems.get(0).getId());

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.item.dto.ItemDtoResponse;
 import ru.practicum.item.service.ItemService;
 
 import java.util.List;
@@ -16,30 +17,30 @@ public class ItemController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId,
-                          @RequestBody ItemDto itemDto) {
+    public ItemDtoResponse create(@RequestHeader(USER_ID_HEADER) Long userId,
+                                  @RequestBody ItemDto itemDto) {
         return service.create(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(USER_ID_HEADER) Long userId,
+    public ItemDtoResponse update(@RequestHeader(USER_ID_HEADER) Long userId,
                           @RequestBody ItemDto itemDto,
                           @PathVariable Long itemId) {
         return service.update(itemDto, userId, itemId);
     }
 
     @GetMapping("/{id}")
-    public ItemDto get(@PathVariable Long id) {
+    public ItemDtoResponse get(@PathVariable Long id) {
         return service.getById(id);
     }
 
     @GetMapping
-    public List<ItemDto> getAllFromUser(@RequestHeader(USER_ID_HEADER) Long userId) {
+    public List<ItemDtoResponse> getAllFromUser(@RequestHeader(USER_ID_HEADER) Long userId) {
         return service.getAllFromUser(userId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam String text) {
+    public List<ItemDtoResponse> search(@RequestParam String text) {
         return service.search(text);
     }
 

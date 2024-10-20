@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Import;
-import ru.practicum.user.dto.ValidatorConfig;
+import ru.practicum.ValidatorConfig;
 
 import java.time.LocalDateTime;
 import java.util.Set;

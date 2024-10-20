@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.context.annotation.Import;
+import ru.practicum.ValidatorConfig;
+import ru.practicum.util.Marker;
 
 import java.util.Set;
 
@@ -44,7 +46,7 @@ class UserDtoJsonTest {
 
         UserDto userDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
+        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessageTemplate()).contains(EMAIL_VIOLATION);
@@ -56,7 +58,7 @@ class UserDtoJsonTest {
 
         UserDto userDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
+        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(1);
         assertThat(violations.iterator().next().getMessageTemplate()).contains(BLANK_VIOLATION);
@@ -68,7 +70,7 @@ class UserDtoJsonTest {
 
         UserDto userDto = jacksonTester.parseObject(json);
 
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
+        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto, Marker.OnCreate.class);
 
         assertThat(violations).hasSize(2);
     }

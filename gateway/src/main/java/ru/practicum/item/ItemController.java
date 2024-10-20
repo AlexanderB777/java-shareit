@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.api.ItemClient;
 import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
+import ru.practicum.util.Marker;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,14 +19,16 @@ public class ItemController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
+    @Validated({Marker.OnCreate.class})
     public ResponseEntity<?> create(@RequestHeader(USER_ID_HEADER) @NotNull Long userId,
                                     @RequestBody @Valid ItemDto itemDto) {
         return client.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
+    @Validated({Marker.OnUpdate.class})
     public ResponseEntity<?> update(@RequestHeader(USER_ID_HEADER) @NotNull Long userId,
-                          @RequestBody ItemDto itemDto,
+                          @RequestBody @Valid ItemDto itemDto,
                           @PathVariable Long itemId) {
         return client.updateItem(userId, itemDto, itemId);
     }
