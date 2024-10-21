@@ -1,0 +1,12 @@
+package ru.practicum.request.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class ItemRequestDto {
+    @NotBlank
+    @Size(min = 1, max = 255)
+    private String description;
+}
