@@ -9,12 +9,13 @@ import ru.practicum.item.service.ItemService;
 
 import java.util.List;
 
+import static ru.practicum.util.Constants.USER_ID_HEADER;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService service;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDtoResponse create(@RequestHeader(USER_ID_HEADER) Long userId,

@@ -1,7 +1,6 @@
 package ru.practicum.item;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,25 +10,24 @@ import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
 import ru.practicum.util.Marker;
 
+import static ru.practicum.util.Constants.USER_ID_HEADER;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
     private final ItemClient client;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    @Validated({Marker.OnCreate.class})
-    public ResponseEntity<?> create(@RequestHeader(USER_ID_HEADER) @NotNull Long userId,
-                                    @RequestBody @Valid ItemDto itemDto) {
+    public ResponseEntity<?> create(@RequestHeader(USER_ID_HEADER) Long userId,
+                                    @RequestBody @Validated({Marker.OnCreate.class}) ItemDto itemDto) {
         return client.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    @Validated({Marker.OnUpdate.class})
-    public ResponseEntity<?> update(@RequestHeader(USER_ID_HEADER) @NotNull Long userId,
-                          @RequestBody @Valid ItemDto itemDto,
-                          @PathVariable Long itemId) {
+    public ResponseEntity<?> update(@RequestHeader(USER_ID_HEADER) Long userId,
+                                    @RequestBody @Validated({Marker.OnUpdate.class}) ItemDto itemDto,
+                                    @PathVariable Long itemId) {
         return client.updateItem(userId, itemDto, itemId);
     }
 
@@ -39,7 +37,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllFromUser(@RequestHeader(USER_ID_HEADER) @NotNull Long userId) {
+    public ResponseEntity<?> getAllFromUser(@RequestHeader(USER_ID_HEADER) Long userId) {
         return client.getAllFromUser(userId);
     }
 
@@ -50,8 +48,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<?> createComment(@PathVariable Long itemId,
-                                    @RequestBody @Valid CommentDto commentDto,
-                                    @RequestHeader(USER_ID_HEADER) @NotNull Long userId) {
+                                           @RequestBody @Valid CommentDto commentDto,
+                                           @RequestHeader(USER_ID_HEADER) Long userId) {
         return client.createComment(itemId, commentDto, userId);
     }
 }

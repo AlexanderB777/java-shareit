@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.request.api.ItemRequestClient;
 import ru.practicum.request.dto.ItemRequestDto;
 import ru.practicum.request.dto.ItemRequestDtoResponse;
-import ru.practicum.util.Constants;
 
 import java.util.List;
+
+import static ru.practicum.util.Constants.USER_ID_HEADER;
 
 @RestController
 @RequestMapping(path = "/requests")
@@ -18,12 +19,12 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDtoResponse create(@RequestBody @Valid ItemRequestDto dto,
-                                         @RequestHeader(Constants.USER_ID_HEADER) Long userId) {
+                                         @RequestHeader(USER_ID_HEADER) Long userId) {
         return client.create(dto, userId);
     }
 
     @GetMapping
-    public List<ItemRequestDtoResponse> getPersonalRequests(@RequestHeader(Constants.USER_ID_HEADER) Long userId) {
+    public List<ItemRequestDtoResponse> getPersonalRequests(@RequestHeader(USER_ID_HEADER) Long userId) {
         return client.getPersonalRequests(userId);
     }
 

@@ -8,11 +8,12 @@ import ru.practicum.request.service.ItemRequestService;
 
 import java.util.List;
 
+import static ru.practicum.util.Constants.USER_ID_HEADER;
+
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class ItemRequestController {
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemRequestService service;
 
     @PostMapping

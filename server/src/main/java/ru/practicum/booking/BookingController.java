@@ -9,12 +9,13 @@ import ru.practicum.booking.status.BookingState;
 
 import java.util.List;
 
+import static ru.practicum.util.Constants.USER_ID_HEADER;
+
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public BookingDtoResponse create(@RequestHeader(USER_ID_HEADER) Long bookerId,

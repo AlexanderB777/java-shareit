@@ -7,12 +7,13 @@ import ru.practicum.item.dto.CommentDto;
 import ru.practicum.item.dto.ItemDto;
 import ru.practicum.util.config.FeignClientConfig;
 
+import static ru.practicum.util.Constants.USER_ID_HEADER;
+
 @FeignClient(url = "${shareit-server.url}",
         path = "/items",
         name = "itemClient",
         configuration = FeignClientConfig.class)
 public interface ItemClient {
-    String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     ResponseEntity<?> createItem(@RequestHeader(USER_ID_HEADER) long ownerId,
